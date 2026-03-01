@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Clerq by Oloxa — Your AI Document Clerk</title>
+  <meta name="description" content="AI-powered document intake for financial professionals. Documents arrive, get classified, matched to clients, and tracked automatically.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #F8F7F4;
+      --bg-alt: #FFFFFF;
+      --text: #1A1A2E;
+      --text-muted: #6B6B80;
+      --accent: #1B3A5C;
+      --accent-light: #2A5A8C;
+      --cta: #2DD4A0;
+      --cta-hover: #25b88a;
+      --cta-glow: rgba(45,212,160,0.2);
+      --card-bg: #FFFFFF;
+      --card-bg-hover: #FAFAF8;
+      --card-border: #E8E7E4;
+      --card-border-hover: rgba(27,58,92,0.2);
+      --gold: #B8860B;
+      --font-heading: 'Satoshi', 'Inter', sans-serif;
+      --font-body: 'Inter', sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+    body { background: var(--bg); color: var(--text); font-family: var(--font-body); font-size: 17px; line-height: 1.6; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    .reveal { opacity: 0; transform: translateY(32px); transition: opacity 0.7s cubic-bezier(0.16,1,0.3,1), transform 0.7s cubic-bezier(0.16,1,0.3,1); }
+    .reveal-left { opacity: 0; transform: translateX(-50px); transition: opacity 0.7s cubic-bezier(0.16,1,0.3,1), transform 0.7s cubic-bezier(0.16,1,0.3,1); }
+    .reveal-right { opacity: 0; transform: translateX(50px); transition: opacity 0.7s cubic-bezier(0.16,1,0.3,1), transform 0.7s cubic-bezier(0.16,1,0.3,1); }
+    .reveal-scale { opacity: 0; transform: scale(0.94); transition: opacity 0.7s cubic-bezier(0.16,1,0.3,1), transform 0.7s cubic-bezier(0.16,1,0.3,1); }
+    .visible { opacity: 1; transform: translateY(0) translateX(0) scale(1); }
+    .stagger-1 { transition-delay: 0.08s; } .stagger-2 { transition-delay: 0.16s; }
+    .stagger-3 { transition-delay: 0.24s; } .stagger-4 { transition-delay: 0.32s; }
+
+    /* NAV - light */
+    nav {
+      position: fixed; top: 0; width: 100%; z-index: 100;
+      padding: 20px 40px; display: flex; justify-content: space-between; align-items: center;
+      background: rgba(248,247,244,0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(0,0,0,0.06); transition: padding 0.3s, background 0.3s;
+    }
+    nav.scrolled { padding: 14px 40px; background: rgba(248,247,244,0.96); box-shadow: 0 2px 20px rgba(0,0,0,0.04); }
+    .nav-logo { font-family: var(--font-heading); font-weight: 900; font-size: 24px; letter-spacing: -0.5px; text-decoration: none; color: var(--accent); }
+    .nav-logo span { color: var(--cta); }
+    .nav-links { display: flex; gap: 32px; align-items: center; }
+    .nav-links a { color: var(--text-muted); text-decoration: none; font-size: 14px; font-weight: 500; transition: color 0.3s; }
+    .nav-links a:hover { color: var(--text); }
+    .nav-cta { background: var(--cta) !important; color: #fff !important; padding: 10px 24px; border-radius: 8px; font-weight: 600 !important; transition: all 0.3s; }
+    .nav-cta:hover { background: var(--cta-hover) !important; transform: translateY(-1px); box-shadow: 0 4px 20px var(--cta-glow); }
+
+    .urgency-bar {
+      position: fixed; top: 0; left: 0; width: 100%; z-index: 101;
+      text-align: center; padding: 10px 20px;
+      background: linear-gradient(135deg, #D97706, #B45309); color: #fff; font-size: 14px; font-weight: 500;
+    }
+    .urgency-bar strong { font-weight: 700; margin-left: 6px; color: #FDE68A; }
+    nav { top: 38px; }
+
+    .section-dark { background: var(--bg); }
+    .section-alt { background: var(--bg-alt); }
+    .section-inner { max-width: 1100px; margin: 0 auto; padding: 110px 24px; }
+
+    /* HEADING ACCENT */
+    .accent-bar { display: block; width: 48px; height: 3px; background: var(--cta); border-radius: 2px; margin: 16px auto 0; }
+    .accent-bar-left { display: block; width: 48px; height: 3px; background: var(--cta); border-radius: 2px; margin: 0 0 24px 0; }
+
+    /* HERO - light */
+    .hero-wrapper { background: var(--bg); position: relative; }
+    .hero-wrapper::before {
+      content: ''; position: absolute; top: 30%; left: 50%; transform: translateX(-50%);
+      width: 600px; height: 400px;
+      background: radial-gradient(ellipse, rgba(45,212,160,0.06) 0%, transparent 70%);
+      pointer-events: none; border-radius: 50%;
+    }
+    .hero {
+      max-width: 1100px; margin: 0 auto; min-height: 100vh;
+      display: flex; flex-direction: column; justify-content: center; align-items: center;
+      text-align: center; padding: 160px 24px 80px; position: relative; z-index: 1;
+    }
+    .hero-badge {
+      display: inline-block; font-size: 12px; font-weight: 600; color: var(--accent);
+      border: 1px solid rgba(27,58,92,0.2); padding: 8px 20px; border-radius: 100px;
+      margin-bottom: 32px; letter-spacing: 2px; text-transform: uppercase;
+      background: rgba(27,58,92,0.04); animation: fadeIn 0.6s ease-out 0.2s both;
+    }
+    .hero h1 {
+      font-family: var(--font-heading); font-size: clamp(40px,6vw,72px); font-weight: 900;
+      line-height: 1.05; letter-spacing: -2.5px; margin-bottom: 24px;
+      color: var(--accent); animation: fadeUp 0.7s ease-out 0.3s both;
+    }
+    .hero h1 em {
+      font-style: normal;
+      background: linear-gradient(135deg, var(--cta), #25b88a);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .hero > p { font-size: 19px; color: var(--text-muted); max-width: 540px; margin-bottom: 40px; line-height: 1.7; animation: fadeUp 0.7s ease-out 0.5s both; }
+    .btn-primary {
+      display: inline-block; background: var(--cta); color: #fff; padding: 18px 44px;
+      border-radius: 10px; font-size: 16px; font-weight: 600; text-decoration: none;
+      transition: all 0.3s cubic-bezier(0.16,1,0.3,1);
+    }
+    .btn-primary:hover { background: var(--cta-hover); transform: translateY(-3px); box-shadow: 0 8px 40px var(--cta-glow); }
+    .hero .btn-primary { animation: fadeUp 0.7s ease-out 0.7s both; }
+    .hero-sub { margin-top: 16px; font-size: 15px; color: var(--text-muted); font-style: italic; animation: fadeIn 0.6s ease-out 0.9s both; }
+
+    /* PAIN - light */
+    .pain .section-inner { text-align: center; }
+    .pain h2 { font-family: var(--font-heading); font-size: clamp(28px,4vw,44px); font-weight: 700; margin-bottom: 12px; letter-spacing: -1px; color: var(--accent); }
+    .pain > .section-inner > p { color: var(--text-muted); font-size: 18px; margin-bottom: 48px; }
+    .pain-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 16px; text-align: left; }
+    .pain-card {
+      background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px; padding: 32px;
+      transition: all 0.4s cubic-bezier(0.16,1,0.3,1); box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+      border-top: 3px solid rgba(27,58,92,0.15); position: relative;
+    }
+    .pain-card:hover { border-color: var(--card-border-hover); border-top-color: var(--cta); transform: translateY(-6px); box-shadow: 0 12px 40px rgba(0,0,0,0.08); }
+    .pain-card h3 { font-family: var(--font-heading); font-size: 18px; font-weight: 700; margin-bottom: 6px; color: var(--accent); }
+    .pain-card p { color: var(--text-muted); font-size: 16px; line-height: 1.6; }
+
+    /* HOW - light */
+    .how .section-inner { text-align: center; }
+    .how h2 { font-family: var(--font-heading); font-size: clamp(28px,4vw,44px); font-weight: 700; margin-bottom: 12px; letter-spacing: -1px; color: var(--accent); }
+    .how > .section-inner > p { color: var(--text-muted); font-size: 18px; margin-bottom: 64px; font-style: italic; }
+    .pipeline { display: flex; align-items: flex-start; justify-content: center; gap: 0; position: relative; max-width: 960px; margin: 0 auto; }
+    .pipe-step { flex: 1; display: flex; flex-direction: column; align-items: center; text-align: center; position: relative; padding: 0 20px; }
+    .pipe-num { font-family: var(--font-heading); font-size: 64px; font-weight: 900; color: rgba(27,58,92,0.2); line-height: 1; margin-bottom: 20px; transition: color 0.4s; }
+    .pipe-step:hover .pipe-num { color: rgba(45,212,160,0.5); }
+    .pipe-icon {
+      width: 80px; height: 80px; border-radius: 22px;
+      background: rgba(27,58,92,0.06); border: 1px solid rgba(27,58,92,0.1);
+      display: flex; align-items: center; justify-content: center; margin-bottom: 24px;
+      transition: all 0.4s cubic-bezier(0.16,1,0.3,1);
+    }
+    .pipe-step:hover .pipe-icon { background: rgba(27,58,92,0.1); border-color: rgba(27,58,92,0.2); transform: translateY(-4px); box-shadow: 0 8px 32px rgba(27,58,92,0.08); }
+    .pipe-icon svg { width: 36px; height: 36px; stroke: var(--accent); fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+    .pipe-step h3 { font-family: var(--font-heading); font-size: 20px; font-weight: 700; margin-bottom: 8px; color: var(--accent); }
+    .pipe-step p { color: var(--text-muted); font-size: 16px; line-height: 1.6; max-width: 270px; }
+    .pipe-arrow { display: flex; align-items: center; padding-top: 92px; flex-shrink: 0; }
+    .pipe-arrow svg { width: 48px; height: 20px; stroke: var(--accent); fill: none; stroke-width: 1.5; opacity: 0.25; }
+
+    /* DIFF - light */
+    .diff .section-inner { text-align: center; }
+    .diff h2 { font-family: var(--font-heading); font-size: clamp(28px,4.5vw,48px); font-weight: 900; letter-spacing: -2px; margin-bottom: 56px; color: var(--accent); }
+    .diff h2 em { font-style: normal; background: linear-gradient(135deg, var(--cta), #25b88a); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .diff-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; text-align: center; }
+    .diff-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 20px; padding: 40px 28px 36px; transition: all 0.4s cubic-bezier(0.16,1,0.3,1); box-shadow: 0 2px 8px rgba(0,0,0,0.03); border-top: 3px solid rgba(45,212,160,0.3); }
+    .diff-card:hover { border-color: var(--card-border-hover); border-top-color: var(--cta); transform: translateY(-6px); box-shadow: 0 16px 48px rgba(0,0,0,0.1); }
+    .diff-icon { width: 80px; height: 80px; border-radius: 20px; background: rgba(27,58,92,0.06); border: 1px solid rgba(27,58,92,0.1); display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; transition: all 0.4s; }
+    .diff-card:hover .diff-icon { background: rgba(27,58,92,0.1); border-color: rgba(27,58,92,0.2); box-shadow: 0 4px 20px rgba(27,58,92,0.08); }
+    .diff-icon svg { width: 36px; height: 36px; stroke: var(--accent); fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+    .diff-card h3 { font-family: var(--font-heading); font-size: 17px; font-weight: 700; color: var(--cta); margin-bottom: 8px; }
+    .diff-card p { color: var(--text-muted); font-size: 16px; line-height: 1.6; }
+
+    /* FIT - light */
+    .fit .section-inner { text-align: center; }
+    .fit h2 { font-family: var(--font-heading); font-size: clamp(28px,4vw,44px); font-weight: 700; margin-bottom: 48px; letter-spacing: -1px; color: var(--accent); }
+    .fit-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; text-align: left; max-width: 840px; margin: 0 auto; }
+    .fit-col { padding: 36px; border-radius: 16px; }
+    .fit-col.yes {
+      background: rgba(45,212,160,0.05); border: 1px solid rgba(45,212,160,0.2);
+      border-left: 4px solid var(--cta); box-shadow: 0 4px 20px rgba(45,212,160,0.08);
+    }
+    .fit-col.no { background: #F2F1EE; border: 1px solid #E0DFDC; border-left: 4px solid #ddd; }
+    .fit-col h3 { font-family: var(--font-heading); font-size: 20px; font-weight: 700; margin-bottom: 20px; }
+    .fit-col.yes h3 { color: #1a8a64; }
+    .fit-col.no h3 { color: #999; }
+    .fit-col ul { list-style: none; padding: 0; }
+    .fit-col ul li { padding: 8px 0; font-size: 16px; display: flex; align-items: flex-start; gap: 10px; line-height: 1.5; }
+    .fit-col.yes li { color: var(--text); }
+    .fit-col.no li { color: #999; }
+    .fit-col.yes li::before { content: "\2713"; color: #1a8a64; font-weight: 700; flex-shrink: 0; }
+    .fit-col.no li::before { content: "\2715"; color: #ccc; font-weight: 700; flex-shrink: 0; }
+    .fit-grid { position: relative; }
+    .fit-vs {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      width: 44px; height: 44px; border-radius: 50%; background: var(--bg);
+      border: 2px solid var(--card-border); display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-heading); font-size: 13px; font-weight: 700; color: var(--text-muted);
+      letter-spacing: 1px; z-index: 2;
+    }
+
+    /* BEFORE/AFTER - light */
+    .transform .section-inner { text-align: center; }
+    .transform h2 { font-family: var(--font-heading); font-size: clamp(28px,4vw,44px); font-weight: 700; margin-bottom: 12px; letter-spacing: -1px; color: var(--accent); }
+    .transform > .section-inner > p.transform-sub { color: var(--text-muted); font-size: 18px; margin-bottom: 48px; font-style: italic; }
+    .compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; text-align: left; }
+    .compare-col { padding: 36px; border-radius: 16px; transition: all 0.4s cubic-bezier(0.16,1,0.3,1); }
+    .compare-col:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.08); }
+    .compare-col.before { background: #F2F1EE; border: 1px solid #E0DFDC; border-left: 4px solid #ddd; }
+    .compare-col.after { background: rgba(45,212,160,0.06); border: 1px solid rgba(45,212,160,0.2); border-left: 4px solid var(--cta); box-shadow: 0 4px 20px rgba(45,212,160,0.08); }
+    .compare-col h3 { font-family: var(--font-heading); font-size: 20px; font-weight: 700; margin-bottom: 20px; }
+    .compare-col.before h3 { color: #999; }
+    .compare-col.after h3 { color: #1a8a64; }
+    .compare-col ul { list-style: none; padding: 0; }
+    .compare-col ul li { padding: 10px 0; font-size: 16px; border-bottom: 1px solid rgba(0,0,0,0.04); display: flex; align-items: flex-start; gap: 12px; }
+    .compare-col ul li:last-child { border-bottom: none; }
+    .compare-col.before li::before { content: "\2715"; color: #ccc; font-weight: 700; flex-shrink: 0; }
+    .compare-col.after li::before { content: "\2713"; color: #1a8a64; font-weight: 700; flex-shrink: 0; }
+    .compare-col.before li { color: #999; }
+    .compare-col.after li { color: var(--text); }
+
+    /* PROOF - light */
+    .proof .section-inner { text-align: center; }
+    .proof h2 { font-family: var(--font-heading); font-size: clamp(28px,4vw,44px); font-weight: 700; margin-bottom: 48px; letter-spacing: -1px; color: var(--accent); }
+    .proof-card {
+      background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 20px;
+      padding: 48px; max-width: 760px; margin: 0 auto 32px; text-align: left;
+      position: relative; overflow: hidden; transition: transform 0.4s;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.06); border-left: 4px solid var(--cta);
+    }
+    .proof-card:hover { transform: translateY(-4px); box-shadow: 0 16px 48px rgba(0,0,0,0.1); }
+    .proof-card::before { content: '\201C'; position: absolute; top: 16px; left: 28px; font-size: 100px; font-family: Georgia, serif; color: rgba(27,58,92,0.06); line-height: 1; pointer-events: none; }
+    .proof-card blockquote { font-size: 19px; font-style: italic; line-height: 1.7; margin-bottom: 24px; position: relative; color: var(--text); }
+    .proof-attribution { display: flex; align-items: center; gap: 16px; }
+    .proof-avatar {
+      width: 56px; height: 56px; border-radius: 50%; flex-shrink: 0;
+      object-fit: cover; border: 2px solid var(--card-border);
+    }
+    .proof-meta cite { font-style: normal; font-size: 15px; color: var(--text); font-weight: 600; display: block; }
+    .proof-meta span { font-size: 13px; color: var(--text-muted); }
+    .stats-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; max-width: 660px; margin: 0 auto; }
+    .stat {
+      text-align: center; padding: 28px 16px; border-radius: 16px;
+      background: var(--card-bg); border: 1px solid var(--card-border);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    }
+    .stat .number { font-family: var(--font-heading); font-size: 48px; font-weight: 900; background: linear-gradient(135deg, var(--accent), var(--accent-light)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; line-height: 1; }
+    .stat .label { font-size: 15px; color: var(--text-muted); margin-top: 8px; }
+
+    /* OFFER - light */
+    .offer .section-inner { text-align: center; }
+    .offer h2 { font-family: var(--font-heading); font-size: clamp(28px,4vw,44px); font-weight: 700; margin-bottom: 12px; letter-spacing: -1px; color: var(--accent); }
+    .offer > .section-inner > p.offer-sub { color: var(--text-muted); font-size: 18px; margin-bottom: 44px; font-style: italic; max-width: 500px; margin-left: auto; margin-right: auto; }
+    .offer-list { max-width: 640px; margin: 0 auto; text-align: left; }
+    .offer-item { display: flex; align-items: flex-start; gap: 14px; padding: 16px 0; border-bottom: 1px solid rgba(0,0,0,0.05); transition: transform 0.3s; }
+    .offer-item:hover { transform: translateX(6px); }
+    .offer-item:last-child { border-bottom: none; }
+    .offer-check { color: var(--cta); font-size: 22px; font-weight: 700; flex-shrink: 0; line-height: 1.2; }
+    .offer-item h4 { font-family: var(--font-heading); font-size: 18px; font-weight: 700; margin-bottom: 3px; color: var(--accent); }
+    .offer-item .value-note { color: var(--gold); font-size: 14px; font-weight: 600; }
+    /* VALUE STRIP — standalone statement section */
+    .value-strip {
+      background: var(--bg); text-align: center;
+      padding: 72px 24px; border-top: 1px solid rgba(0,0,0,0.04); border-bottom: 1px solid rgba(0,0,0,0.04);
+    }
+    .value-strip-inner { max-width: 700px; margin: 0 auto; }
+    .value-strip-headline {
+      font-family: var(--font-heading); font-size: clamp(24px, 3.5vw, 36px);
+      font-weight: 700; color: var(--accent); line-height: 1.3; letter-spacing: -0.5px;
+    }
+    .value-strip-sub { font-size: 18px; color: var(--text-muted); margin-top: 12px; }
+
+    /* FINAL CTA - light with navy bg */
+    .final-cta-wrapper { background: var(--accent); position: relative; }
+    .final-cta { text-align: center; max-width: 1100px; margin: 0 auto; padding: 110px 24px 140px; position: relative; z-index: 1; }
+    .final-cta h2 { font-family: var(--font-heading); font-size: clamp(32px,5vw,52px); font-weight: 900; letter-spacing: -2px; margin-bottom: 16px; color: #fff; }
+    .final-cta h2 em { font-style: normal; background: linear-gradient(135deg, var(--cta), #7eecd0); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .final-cta > p { color: rgba(255,255,255,0.7); font-size: 18px; margin-bottom: 36px; max-width: 440px; margin-left: auto; margin-right: auto; }
+    .final-cta .btn-primary { background: var(--cta); color: #fff; }
+    .final-cta .btn-primary:hover { background: var(--cta-hover); box-shadow: 0 8px 40px rgba(45,212,160,0.3); }
+    .final-cta .sub-note { font-size: 15px; color: rgba(255,255,255,0.5); margin-top: 14px; }
+    .final-cta .urgency {
+      font-size: 14px; color: rgba(255,255,255,0.5); margin-top: 32px;
+      font-weight: 500; letter-spacing: 0.5px;
+    }
+    .final-cta .urgency strong {
+      display: block; font-size: 17px; color: #FDE68A; font-weight: 700;
+      margin-top: 6px; letter-spacing: 0;
+    }
+
+    /* SECTION DIVIDER */
+    .section-divider {
+      text-align: center; padding: 0; line-height: 0; margin: -1px 0;
+      position: relative; z-index: 2;
+    }
+    .section-divider::before {
+      content: '';
+      display: inline-block; width: 6px; height: 6px;
+      background: var(--cta); border-radius: 50%; opacity: 0.4;
+    }
+
+    footer { text-align: center; padding: 40px 24px; border-top: 1px solid rgba(0,0,0,0.06); font-size: 13px; color: #999; background: var(--bg); }
+    footer a { color: var(--accent); text-decoration: none; }
+
+    @media (max-width: 810px) {
+      nav { padding: 16px 20px; } .nav-links { display: none; } .section-inner { padding: 72px 20px; }
+      .pain-grid, .diff-grid, .fit-grid, .compare-grid { grid-template-columns: 1fr; }
+      .pipeline { flex-direction: column; align-items: center; gap: 40px; } .pipe-arrow { display: none; } .pipe-step { padding: 0; }
+      .stats-row { grid-template-columns: 1fr; gap: 28px; }
+      .proof-snapshot { flex-direction: column; gap: 12px; align-items: center; }
+      .hero { padding: 140px 20px 60px; } .hero h1 { letter-spacing: -1px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="urgency-bar">Currently onboarding Q1 clients <strong>&mdash; 2 spots remaining</strong></div>
+
+  <nav>
+    <a href="#" class="nav-logo">Cler<span>q</span></a>
+    <div class="nav-links">
+      <a href="#pain">The Problem</a>
+      <a href="#how">How It Works</a>
+      <a href="#proof">Results</a>
+      <a href="https://calendly.com/sway-oloxa/discovery-call" class="nav-cta">Book A Call</a>
+    </div>
+  </nav>
+
+  <div class="hero-wrapper">
+    <section class="hero">
+      <div class="hero-badge">For Financial Professionals</div>
+      <h1>Stop sorting documents.<br>Start <em>closing deals.</em></h1>
+      <p>Clients send you documents everywhere.<br>Cler<span style="color:var(--cta)">q</span> sorts, classifies, and tracks them automatically inside your existing tools.</p>
+      <a href="https://calendly.com/sway-oloxa/discovery-call" class="btn-primary">Book A Free Diagnostic Call &rarr;</a>
+      <p class="hero-sub">30 min. We find 10+ hours of waste or the call is free.</p>
+    </section>
+  </div>
+
+  <div class="pain section-alt" id="pain">
+    <div class="section-inner">
+      <h2 class="reveal">Sound familiar?<span class="accent-bar"></span></h2>
+      <p class="reveal stagger-1">You didn't get into this to be a filing clerk.</p>
+      <div class="pain-grid">
+        <div class="pain-card reveal stagger-1"><h3>The Drip-Feed</h3><p>Clients send docs in 5 separate emails over 3 weeks. You lose track of what's in, what's wrong, and what's missing.</p></div>
+        <div class="pain-card reveal stagger-2"><h3>The Scavenger Hunt</h3><p>Was that bank statement in email, WhatsApp, or on a USB stick? You spend 20 minutes looking. Per file.</p></div>
+        <div class="pain-card reveal stagger-3"><h3>The 10-Day Wait</h3><p>Document collection takes up to 10 days per application. Every day chasing paper is a day not closing.</p></div>
+        <div class="pain-card reveal stagger-4"><h3>The Mental Checklist</h3><p>Which client sent proof of income? Did the Garcias send the right tax return? It's all in your head. Or a stale spreadsheet.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+  <div class="fit section-dark" id="fit">
+    <div class="section-inner">
+      <h2 class="reveal">Is this for you?<span class="accent-bar"></span></h2>
+      <div class="fit-grid">
+        <div class="fit-col yes reveal-left"><h3>Built for you if...</h3><ul><li>You process 10+ client files per week</li><li>You've thought about hiring an admin just for paperwork</li><li>You don't want to learn a new platform or change your workflow</li><li>You lose hours to sorting, renaming, and chasing docs</li></ul></div>
+        <div class="fit-vs">or</div>
+        <div class="fit-col no reveal-right"><h3>Not for you if...</h3><ul><li>You handle 2-3 clients and paperwork is manageable</li><li>You already have a document management system that works</li><li>You want a generic off-the-shelf SaaS platform</li><li>You're looking for a full CRM replacement</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+  <div class="how section-alt" id="how">
+    <div class="section-inner">
+      <h2 class="reveal">How Cler<span style="color:var(--cta)">q</span> works<span class="accent-bar"></span></h2>
+      <p class="reveal stagger-1">Three things happen. None require you.</p>
+      <div class="pipeline reveal stagger-2">
+        <div class="pipe-step"><div class="pipe-num">01</div><div class="pipe-icon"><svg viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg></div><h3>Documents arrive</h3><p>Email, Drive, upload form. Cler<span style="color:var(--cta)">q</span> watches every channel your clients use.</p></div>
+        <div class="pipe-arrow"><svg viewBox="0 0 48 20"><line x1="0" y1="10" x2="38" y2="10" stroke-dasharray="4 3"/><polyline points="34 5 40 10 34 15"/></svg></div>
+        <div class="pipe-step"><div class="pipe-num">02</div><div class="pipe-icon"><svg viewBox="0 0 24 24"><path d="M12 3l1.8 5.8L20 10l-6.2 1.2L12 17l-1.8-5.8L4 10l6.2-1.2L12 3z"/><line x1="20" y1="3" x2="20" y2="7"/><line x1="18" y1="5" x2="22" y2="5"/><line x1="4" y1="17" x2="4" y2="21"/><line x1="2" y1="19" x2="6" y2="19"/></svg></div><h3>AI sorts everything</h3><p>Each file is classified, matched to the right client, and filed into their folder.</p></div>
+        <div class="pipe-arrow"><svg viewBox="0 0 48 20"><line x1="0" y1="10" x2="38" y2="10" stroke-dasharray="4 3"/><polyline points="34 5 40 10 34 15"/></svg></div>
+        <div class="pipe-step"><div class="pipe-num">03</div><div class="pipe-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div><h3>You see what's missing</h3><p>Live tracker per client. Automated reminders for outstanding docs. No more chasing.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+  <div class="diff section-dark" id="diff">
+    <div class="section-inner">
+      <h2 class="reveal">Not another platform.<br><em>An upgrade to yours.</em></h2>
+      <div class="diff-grid">
+        <div class="diff-card reveal stagger-1"><div class="diff-icon"><svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></div><h3>Zero migration</h3><p>Keep your email. Keep your Drive. Clerq adds intelligence on top. Nothing changes for you or your clients.</p></div>
+        <div class="diff-card reveal stagger-2"><div class="diff-icon"><svg viewBox="0 0 24 24"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg></div><h3>100% custom</h3><p>Your doc types. Your folder structure. Your reminder schedule. Built around how you work.</p></div>
+        <div class="diff-card reveal stagger-3"><div class="diff-icon"><svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg></div><h3>Built &amp; maintained</h3><p>Not a template. We design, build, and maintain it. Something changes? We adjust.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+  <div class="transform section-alt" id="transform">
+    <div class="section-inner">
+      <h2 class="reveal">Picture your week<span class="accent-bar"></span></h2>
+      <p class="transform-sub reveal stagger-1">Same workload. Completely different experience.</p>
+      <div class="compare-grid">
+        <div class="compare-col before reveal-left"><h3>Today</h3><ul><li>It's 7pm. You're still renaming PDFs from this morning.</li><li>A client calls: "Did you get my bank statement?" You have no idea.</li><li>6 emails with attachments. None labeled. Good luck.</li><li>Follow-up reminders? That's another spreadsheet you'll update tomorrow.</li><li>10+ days to collect docs. Your pipeline stalls.</li></ul></div>
+        <div class="compare-col after reveal-right"><h3>With Clerq</h3><ul><li>Documents land in the right folder before you finish your coffee.</li><li>Client calls? Pull up their tracker. Instant answer.</li><li>6 attachments, all sorted and filed in 30 seconds.</li><li>Reminders go out automatically. Day 3. Day 7. You didn't lift a finger.</li><li>Collection drops to 2-3 days. Friday at 5, you close your laptop.</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+  <div class="proof section-dark" id="proof">
+    <div class="section-inner">
+      <h2 class="reveal">Don't take our word for it<span class="accent-bar"></span></h2>
+      <div class="proof-card reveal-scale">
+        <blockquote>"Even if the system handles 90%, it's a different game. For me to check the other 10 instead of checking the whole 100? Super different game. Would I hire an assistant to do this? I'd rather use this and call it a day."</blockquote>
+        <div class="proof-attribution">
+          <img class="proof-avatar" src="https://images.unsplash.com/photo-1560250097-0b93528c311a?w=112&h=112&fit=crop&crop=face" alt="Client photo">
+          <div class="proof-meta">
+            <cite>Eugene O.</cite>
+            <span>Financial Advisory &middot; 15+ active cases</span>
+          </div>
+        </div>
+      </div>
+      <div class="stats-row">
+        <div class="stat reveal stagger-1"><div class="number" data-target="18" data-suffix=" hrs">0</div><div class="label">saved per client</div></div>
+        <div class="stat reveal stagger-2"><div class="number" data-target="38" data-suffix="+">0</div><div class="label">document types classified</div></div>
+        <div class="stat reveal stagger-3"><div class="number" data-target="30" data-suffix="s">0</div><div class="label">intake to filed</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+  <div class="offer section-alt" id="offer">
+    <div class="section-inner">
+      <h2 class="reveal">What you get<span class="accent-bar"></span></h2>
+      <p class="offer-sub reveal stagger-1">Everything below. Built around your tools.<br>Nothing to install.</p>
+      <div class="offer-list">
+        <div class="offer-item reveal stagger-1"><span class="offer-check">&#10003;</span><div><h4>AI Document Classification</h4><div class="value-note">Replaces: 1 admin hire doing manual sorting</div></div></div>
+        <div class="offer-item reveal stagger-2"><span class="offer-check">&#10003;</span><div><h4>Client Matching &amp; Filing</h4><div class="value-note">What takes your team 45 min, done in 30 seconds</div></div></div>
+        <div class="offer-item reveal stagger-1"><span class="offer-check">&#10003;</span><div><h4>Completeness Tracker</h4><div class="value-note">Replaces: your mental checklist and spreadsheet tracking</div></div></div>
+        <div class="offer-item reveal stagger-2"><span class="offer-check">&#10003;</span><div><h4>Automated Reminders</h4><div class="value-note">Saves: 3-5 follow-up emails per client, per week</div></div></div>
+        <div class="offer-item reveal stagger-1"><span class="offer-check">&#10003;</span><div><h4>Multi-Channel Intake</h4><div class="value-note">No more: "which channel did they send it through?"</div></div></div>
+        <div class="offer-item reveal stagger-2"><span class="offer-check">&#10003;</span><div><h4>Ongoing Support</h4><div class="value-note">Included: updates, maintenance, and workflow changes</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="value-strip">
+    <div class="value-strip-inner">
+      <p class="value-strip-headline reveal">The output of a full-time document admin.</p>
+      <p class="value-strip-sub reveal stagger-1">At a fraction of the cost. No hiring. No training. No turnover.</p>
+    </div>
+  </div>
+
+  <div class="final-cta-wrapper">
+    <section class="final-cta">
+      <h2 class="reveal">Your documents, <em>handled.</em></h2>
+      <p class="reveal stagger-1">30-minute diagnostic. We map your document workflow and show you exactly what can be automated.</p>
+      <a href="https://calendly.com/sway-oloxa/discovery-call" class="btn-primary reveal stagger-2">Book Your Free Diagnostic Call &rarr;</a>
+      <p class="sub-note reveal stagger-3">If we can't find 10+ hours of wasted time, we'll tell you in the first 15 minutes.</p>
+      <p class="urgency reveal stagger-4">We onboard 3 new clients per quarter.<strong>Limited availability.</strong></p>
+    </section>
+  </div>
+
+  <footer>
+    <p>Cler<span style="color:var(--cta)">q</span> is built by <a href="https://oloxa.ai">Oloxa.ai</a>. AI systems that hold.</p>
+    <p style="margin-top: 6px;">&copy; 2026 Oloxa.ai &middot; <a href="mailto:info@oloxa.ai">info@oloxa.ai</a></p>
+  </footer>
+
+  <script>
+    const observer = new IntersectionObserver((entries) => { entries.forEach(entry => { if (entry.isIntersecting) { entry.target.classList.add('visible'); observer.unobserve(entry.target); } }); }, { threshold: 0.12, rootMargin: '0px 0px -30px 0px' });
+    document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .reveal-scale').forEach(el => observer.observe(el));
+    window.addEventListener('scroll', () => { document.querySelector('nav').classList.toggle('scrolled', window.scrollY > 50); }, { passive: true });
+    const counterObserver = new IntersectionObserver((entries) => { entries.forEach(entry => { if (entry.isIntersecting) { const el = entry.target; const target = parseInt(el.dataset.target); const suffix = el.dataset.suffix || ''; let current = 0; const step = target / (1200/16); const timer = setInterval(() => { current += step; if (current >= target) { current = target; clearInterval(timer); } el.textContent = Math.round(current) + suffix; }, 16); counterObserver.unobserve(el); } }); }, { threshold: 0.5 });
+    document.querySelectorAll('.stat .number[data-target]').forEach(el => counterObserver.observe(el));
+  </script>
+</body>
+</html>
